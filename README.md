@@ -1,31 +1,28 @@
 #!/bin/bash
 
 # Definindo os node pools
-declare -a node_pools=("nodepool-bkl-api" "nodepool-bkl-infra" "nodepool-bkl-kafka")
+declare -a node_pools=("nodepool-bkl-api", "nodepool-bkl-infra", "nodepool-bkl-kafka")
+
+# Arquivo de saída CSV
+output_file="pod_resources.csv"
 
 # Cabeçalho da tabela
-echo "NODE POOL | POD | CPU REQUESTS | MEMORY REQUESTS | CPU LIMITS | MEMORY LIMITS"
-echo "-----------------------------------------------------------------------------------"
+echo "Node Pool,Pod,CPU Requests,Memory Requests,CPU Limits,Memory Limits" > "$output_file"
 
 # Iterando sobre cada node pool
 for node_pool in "${node_pools[@]}"; do
-    echo "Checking node pool: $node_pool"
-    
     # Obtendo a lista de nodes no node pool
     node_names=$(kubectl get nodes -l cloud.google.com/gke-nodepool=$node_pool -o jsonpath='{.items[*].metadata.name}')
     
     # Verificando se a lista de nodes não está vazia
     if [ -z "$node_names" ]; then
-        echo "No nodes found for the node pool: $node_pool"
-        echo ""
         continue
     fi
     
-    # Listando os pods com requests e limits nos nodes específicos
+    # Listando os pods com requests e limits nos nodes específicos e escrevendo no CSV
     for node in $node_names; do
-        # Agora estamos agregando os recursos de todos os containers dentro do mesmo pod
-        kubectl get pods --all-namespaces --field-selector spec.nodeName=$node -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{range .spec.containers[*]}{.resources.requests.cpu}{" "}{end}{"\t"}{range .spec.containers[*]}{.resources.requests.memory}{" "}{end}{"\t"}{range .spec.containers[*]}{.resources.limits.cpu}{" "}{end}{"\t"}{range .spec.containers[*]}{.resources.limits.memory}{" "}{end}{"\n"}{end}' | awk -v np="$node_pool" '{print np " | " $0}'
+        kubectl get pods --all-namespaces --field-selector spec.nodeName=$node -o jsonpath='{range .items[*]}{.metadata.name}{","}{range .spec.containers[*]}{.resources.requests.cpu}{" "}{end}{","}{range .spec.containers[*]}{.resources.requests.memory}{" "}{end}{","}{range .spec.containers[*]}{.resources.limits.cpu}{" "}{end}{","}{range .spec.containers[*]}{.resources.limits.memory}{" "}{end}{"\n"}{end}' | awk -v np="$node_pool" -F, -v OFS=',' '{print np,$0}' >> "$output_file"
     done
-    
-    echo "-----------------------------------------------------------------------------------"
-done | column -t -s '|'
+done
+
+echo "CSV file created: $output_file"
