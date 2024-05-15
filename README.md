@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Definindo os node pools
-declare -a node_pools=("nodepool-bkl-api", "nodepool-bkl-infra", "nodepool-bkl-kafka")
+declare -a node_pools=("nodepool-bkl-api" "nodepool-bkl-infra" "nodepool-bkl-kafka")
 
 # Arquivo de saída CSV
 output_file="pod_resources.csv"
