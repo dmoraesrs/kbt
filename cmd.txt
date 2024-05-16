@@ -1,0 +1,1 @@
+kubectl get hpa --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{"\t"}{.metadata.name}{"\t"}{range .spec.metrics[*]}{.resource.target.averageUtilization}{"\t"}{end}{.spec.minReplicas}{"\t"}{.spec.maxReplicas}{"\n"}{end}' | column -t
