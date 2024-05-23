@@ -2,3 +2,6 @@ kubectl get hpa --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namesp
 
 
 Get-ChildItem Env: | Format-Table -Property Name, Value -AutoSize
+
+
+https://persistent.oaistatic.com/sidekick/public/ChatGPT_Desktop_public_latest.dmg
