@@ -1,0 +1,1 @@
+Este cluster tem um webhook de admissão instalado que está interceptando solicitações críticas do sistema nas últimas 24 horas. A interceptação dessas solicitações pode afetar a disponibilidade do plano de controle do GKE.
