@@ -64,3 +64,27 @@ module "sink_gcs" {
   parent_resource_type   = "project"
   unique_writer_identity = true
 }
+
+
+
+
+
+╷
+│ Error: Unsupported attribute
+│ 
+│   on storage.tf line 23, in module "sink_logbucket":
+│   23:   destination_uri        = module.logsink_gcs.destination_uri
+│     ├────────────────
+│     │ module.logsink_gcs is a object
+│ 
+│ This object does not have an attribute named "destination_uri".
+╵
+╷
+│ Error: Unsupported attribute
+│ 
+│   on storage.tf line 34, in module "sink_gcs":
+│   34:   destination_uri        = module.logsink_log_sink.destination_uri
+│     ├────────────────
+│     │ module.logsink_log_sink is a object
+│ 
+│ This object does not have an attribute named "destination_uri".
