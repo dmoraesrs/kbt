@@ -1,15 +1,15 @@
+# Primeiro, defina o bucket de destino separadamente
 module "destination" {
   source  = "terraform-google-modules/log-export/google//modules/logbucket"
   version = "~> 8.0"
 
-  project_id               = var.project_id
-  name                     = "gcs-logsink-gke-${var.env}-${var.product}-${var.project_id}"
-  location                 = "global"
-  log_sink_writer_identity = module.sink_logbucket.unique_writer_identity
-  retention_days           = 7  # Adicionado para definir a retenção de logs
-  depends_on = [ module.sink_logbucket ]
+  project_id   = var.project_id
+  name         = "gcs-logsink-gke-${var.env}-${var.product}-${var.project_id}"
+  location     = "global"
+  retention_days = 7
 }
 
+# Defina o módulo logsink_gcs separadamente
 module "logsink_gcs" {
   source      = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/logging-bucket"
   parent_type = "project"
@@ -18,6 +18,7 @@ module "logsink_gcs" {
   id          = "logsink-gke-${var.env}-${var.product}-${var.project_id}"
 }
 
+# Defina o log sink para erros graves
 module "sink_logbucket" {
   source                 = "terraform-google-modules/log-export/google"
   version                = "~> 7.0"
@@ -27,8 +28,10 @@ module "sink_logbucket" {
   parent_resource_id     = var.project_id
   parent_resource_type   = "project"
   unique_writer_identity = true
+  depends_on             = [module.destination]  # Adicione a dependência correta
 }
 
+# Defina o log sink para recursos do Kubernetes
 module "sink_gcs" {
   source                 = "terraform-google-modules/log-export/google"
   version                = "~> 7.0"
@@ -38,4 +41,5 @@ module "sink_gcs" {
   parent_resource_id     = var.project_id
   parent_resource_type   = "project"
   unique_writer_identity = true
+  depends_on             = [module.destination]  # Adicione a dependência correta
 }
