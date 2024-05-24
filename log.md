@@ -38,3 +38,14 @@ module "sink_gcs" {
   parent_resource_type   = "project"
   unique_writer_identity = true
 }
+
+
+
+Planning failed. Terraform encountered an error while generating this plan.
+
+╷
+│ Error: invalid value for member (IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding)
+│ 
+│   with module.destination.google_project_iam_member.logbucket_sink_member[0],
+│   on .terraform/modules/destination/modules/logbucket/main.tf line 73, in resource "google_project_iam_member" "logbucket_sink_member":
+│   73:   member  = var.log_sink_writer_identity
