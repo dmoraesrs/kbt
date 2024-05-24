@@ -38,3 +38,30 @@ module "sink_gcs" {
   parent_resource_type   = "project"
   unique_writer_identity = true
 }
+
+
+
+
+
+
+
+# Defina o log sink para diferentes tipos de logs
+module "sink_logs" {
+  source                 = "terraform-google-modules/log-export/google"
+  version                = "~> 7.0"
+  destination_uri        = "${module.logsink_gcs.destination_uri}"
+  parent_resource_id     = var.project_id
+  parent_resource_type   = "project"
+  unique_writer_identity = true
+
+  sinks = [
+    {
+      log_sink_name = "sink_logbucket-${var.env}-${var.product}-${var.project_id}"
+      filter        = "severity >= ERROR"
+    },
+    {
+      log_sink_name = "sink_gcs-${var.env}-${var.product}-${var.project_id}"
+      filter        = "resource.type IN ('k8s_container', 'k8s_pod', 'k8s_cluster', 'gke_cluster', 'k8s_control_plane_component')"
+    }
+  ]
+}
