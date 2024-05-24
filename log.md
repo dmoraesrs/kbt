@@ -41,11 +41,8 @@ module "sink_gcs" {
 
 
 
-Planning failed. Terraform encountered an error while generating this plan.
-
 ╷
-│ Error: invalid value for member (IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding)
+│ Error: Cycle: module.destination.var.kms_key_name (expand), module.destination.var.name (expand), module.destination.var.location (expand), module.destination.var.retention_days (expand), module.destination.var.locked (expand), module.destination.var.project_id (expand), module.destination.google_project_service.enable_destination_api, module.sink_logbucket.output.writer_identity (expand), module.sink_logbucket.output.parent_resource_id (expand), module.sink_logbucket.local.log_sink_resource_id (expand), module.sink_logbucket.output.log_sink_resource_id (expand), module.sink_logbucket.local.log_sink_parent_id (expand), module.sink_logbucket.local.log_sink_writer_identity (expand), module.sink_logbucket (close), module.sink_logbucket.google_logging_project_sink.sink, module.sink_logbucket.google_logging_billing_account_sink.sink, module.sink_logbucket.google_logging_organization_sink.sink, module.destination.local.log_bucket_id (expand), module.destination.local.destination_uri (expand), module.destination.output.destination_uri (expand), module.sink_logbucket.var.destination_uri (expand), module.sink_logbucket.google_logging_folder_sink.sink, module.sink_logbucket.local.log_sink_resource_name (expand), module.sink_logbucket.output.log_sink_resource_name (expand), module.destination (expand), module.destination.var.enable_analytics (expand), module.destination.google_logging_project_bucket_config.bucket
 │ 
-│   with module.destination.google_project_iam_member.logbucket_sink_member[0],
-│   on .terraform/modules/destination/modules/logbucket/main.tf line 73, in resource "google_project_iam_member" "logbucket_sink_member":
-│   73:   member  = var.log_sink_writer_identity
+│ 
+╵
