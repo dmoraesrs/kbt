@@ -1,8 +1,8 @@
-│ Error: Unsupported attribute
+╷
+│ Error: Missing required argument
 │ 
-│   on storage.tf line 9, in module "destination":
-│    9:   log_sink_writer_identity = module.sink_logbucket.unique_writer_identity
-│     ├────────────────
-│     │ module.sink_logbucket is a object
+│   on storage.tf line 2, in module "destination":
+│    2: module "destination" {
 │ 
-│ This object does not have an attribute named "unique_writer_identity".
+│ The argument "log_sink_writer_identity" is required, but no definition was
+│ found.
