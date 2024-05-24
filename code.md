@@ -6,6 +6,7 @@ module "destination" {
   project_id   = var.project_id
   name         = "gcs-logsink-gke-${var.env}-${var.product}-${var.project_id}"
   location     = "global"
+  log_sink_writer_identity = module.sink_logbucket.unique_writer_identity
   retention_days = 7
 }
 
