@@ -44,3 +44,8 @@ module "sink_gcs" {
   parent_resource_type   = "project"
   unique_writer_identity = true
 }
+
+
+
+terraform state rm module.logsink_gcs.google_logging_project_bucket_config.bucket[0]
+
