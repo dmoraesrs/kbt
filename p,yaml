@@ -1,3 +1,1 @@
-
-/pipeline-tf-build.yaml@ci-cd-tf (Line: 1, Col: 1): Unexpected value 'trigger'
-/pipeline-tf-build.yaml@ci-cd-tf (Line: 3, Col: 1): Unexpected value 'pr'
+condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
