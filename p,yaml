@@ -1,1 +1,16 @@
-condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+stages:
+- stage: Build
+  jobs:
+  - job: Checkout    
+    steps:
+      - checkout: self
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: '$(Build.SourcesDirectory)'
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/terraform.zip' 
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish agent artifact'
+        inputs:
+          artifactName: terraform
+          pathToPublish: '$(Build.ArtifactStagingDirectory)/terraform.zip'
