@@ -30,35 +30,3 @@ def hello_pubsub(cloud_event):
             print(f'Falha ao enviar mensagem para o webhook. Código de status: {response.status_code}')
     except Exception as e:
         print(f'Erro ao processar mensagem: {e}')
-import base64
-import functions_framework
-import json
-import requests
-
-# Triggered from a message on a Cloud Pub/Sub topic.
-@functions_framework.cloud_event
-def hello_pubsub(cloud_event):
-    # Extrai a mensagem do evento Pub/Sub
-    try:
-        # Obter o payload do evento CloudEvent
-        data = base64.b64decode(cloud_event.data["message"]["data"]).decode('utf-8')
-        
-        # Logar a mensagem decodificada
-        print(f'Decoded message: {data}')
-        
-        # Define a mensagem a ser enviada
-        message = {"text": data}
-        
-        # Define o URL do webhook (exemplo do Google Chat)
-        webhook_url = "https://chat.googleapis.com/v1/spaces/AAAARj8mubY/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=aql58oljs4ojtCEBsocZ3ZMxTZph46Yrtbg-kTJRXMg"
-        
-        # Envia a solicitação POST para o webhook
-        response = requests.post(webhook_url, data=json.dumps(message), headers={'Content-Type': 'application/json'})
-        
-        # Verifica se a requisição foi bem-sucedida
-        if response.status_code == 200:
-            print(f'Mensagem enviada para o webhook com sucesso: {message}')
-        else:
-            print(f'Falha ao enviar mensagem para o webhook. Código de status: {response.status_code}')
-    except Exception as e:
-        print(f'Erro ao processar mensagem: {e}')
