@@ -27,3 +27,8 @@ resource "google_pubsub_subscription" "webhook_subscription" {
     push_endpoint = "https://example.com/webhook"  # Substitua pelo URL do seu webhook
   }
 }
+
+
+{
+  "text": "Hello, World!"
+}
