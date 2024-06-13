@@ -1,89 +1,43 @@
-Este cluster tem um webhook de admissão instalado que está interceptando solicitações críticas do sistema nas últimas 24 horas. A interceptação dessas solicitações pode afetar a disponibilidade do plano de controle do GKE.
+resource "google_cloudfunctions_function" "pubsub_to_webhook" {
+  name        = "send-to-webhook"
+  runtime     = "python310"
+  entry_point = "hello_pubsub"
+  available_memory_mb = 128
+  source_code {
+    files = {
+      "main.py" = <<-EOT
+        import base64
+        import functions_framework
+        import json
+        import os
+        import requests
 
-
-kubectl get validatingwebhookconfigurations
-kubectl get mutatingwebhookconfigurations
-
-
-
-module "sink_gcs" {
-  source                 = "terraform-google-modules/log-export/google"
-  version                = "~> 7.0"
-  destination_uri        = module.logsink_gcs.destination_uri
-  filter                 = "resource.type = ('k8s_container' OR 'k8s_pod' OR 'k8s_cluster' OR 'gke_cluster' OR 'k8s_control_plane_component')"
-  log_sink_name          = "sink_gcs-${var.env}-${var.product}-${var.project_id}"
-  parent_resource_id     = var.project_id
-  parent_resource_type   = "project"
-  unique_writer_identity = true
+        @functions_framework.cloud_event
+        def hello_pubsub(cloud_event):
+            try:
+                data = base64.b64decode(cloud_event.data["message"]["data"]).decode('utf-8')
+                print(f'Decoded message: {data}')
+                message = {"text": data}
+                webhook_url = os.getenv("WEBHOOK_URL")
+                response = requests.post(webhook_url, data=json.dumps(message), headers={'Content-Type': 'application/json'})
+                if response.status_code == 200:
+                    print(f'Mensagem enviada para o webhook com sucesso: {message}')
+                else:
+                    print(f'Falha ao enviar mensagem para o webhook. Código de status: {response.status_code}')
+            except Exception as e:
+                print(f'Erro ao processar mensagem: {e}')
+        EOT
+      "requirements.txt" = <<-EOT
+        functions-framework
+        requests
+        EOT
+    }
+  }
+  environment_variables = {
+    WEBHOOK_URL = "https://example.com/webhook"  # Substitua pelo URL do seu webhook
+  }
+  event_trigger {
+    event_type = "google.pubsub.topic.publish"
+    resource   = google_pubsub_topic.test_topic.id
+  }
 }
-
-
-
-
-
-
-
-
-module "destination" {
-  source  = "terraform-google-modules/log-export/google//modules/logbucket"
-  version = "~> 8.0"
-
-  project_id               = var.project_id
-  name                     = "gcs-logsink-gke-${var.env}-${var.product}-${var.project_id}"
-  location                 = "global"
-  log_sink_writer_identity = module.log_export.writer_identity
-}
-
-module "logsink_gcs" {
-  source      = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/logging-bucket"
-  parent_type = "project"
-  parent      = var.project_id
-  retention   = 7
-  id          = "logsink-gke-${var.env}-${var.product}-${var.project_id}"
-}
-
-module "sink_logbucket" {
-  source                 = "terraform-google-modules/log-export/google"
-  version                = "~> 7.0"
-  destination_uri        = module.destination.destination_uri
-  filter                 = "severity >= ERROR"
-  log_sink_name          = "sink_logbucket-${var.env}-${var.product}-${var.project_id}"
-  parent_resource_id     = var.project_id
-  parent_resource_type   = "project"
-  unique_writer_identity = true
-}
-
-module "sink_gcs" {
-  source                 = "terraform-google-modules/log-export/google"
-  version                = "~> 7.0"
-  destination_uri        = module.destination.destination_uri
-  filter                 = "resource.type = ('k8s_container' OR 'k8s_pod' OR 'k8s_cluster' OR 'gke_cluster' OR 'k8s_control_plane_component')"
-  log_sink_name          = "sink_gcs-${var.env}-${var.product}-${var.project_id}"
-  parent_resource_id     = var.project_id
-  parent_resource_type   = "project"
-  unique_writer_identity = true
-}
-
-
-
-
-
-╷
-│ Error: Unsupported attribute
-│ 
-│   on storage.tf line 23, in module "sink_logbucket":
-│   23:   destination_uri        = module.logsink_gcs.destination_uri
-│     ├────────────────
-│     │ module.logsink_gcs is a object
-│ 
-│ This object does not have an attribute named "destination_uri".
-╵
-╷
-│ Error: Unsupported attribute
-│ 
-│   on storage.tf line 34, in module "sink_gcs":
-│   34:   destination_uri        = module.logsink_log_sink.destination_uri
-│     ├────────────────
-│     │ module.logsink_log_sink is a object
-│ 
-│ This object does not have an attribute named "destination_uri".
